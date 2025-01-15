@@ -10,12 +10,12 @@ const float ROTATION_SPEED = 45.0f; // Degrees per second
 const float FOV = 45.0f;            // Field of view in degrees
 const float NEAR_PLANE = 1.0f;      // Near clipping plane for the camera
 const float FAR_PLANE = 500.0f;     // Far clipping plane for the camera
-
+const float Distance = 2.0f;       //speed at which the cube moves from camera 
 /**
  * Initializes the game state and OpenGL settings
  * Sets up projection matrix, creates display lists, and initializes timing
  */
-void initialize(Game *game)
+void initialize(Game* game)
 {
     // Set initial game state
     game->isRunning = 1;
@@ -39,25 +39,46 @@ void initialize(Game *game)
     glBegin(GL_QUADS);
     {
         // Front face of cube (Blue)
-        glColor3f(0.0f, 0.0f, 1.0f);     // Set color to blue
-        glVertex3f(1.0f, 1.0f, -5.0f);   // Top-right vertex
-        glVertex3f(-1.0f, 1.0f, -5.0f);  // Top-left vertex
+        glColor3f(0.0f, 0.0f, 1.0f); // Set color to blue
+        glVertex3f(1.0f, 1.0f, -5.0f);  // Top-right vertex
+        glVertex3f(-1.0f, 1.0f, -5.0f); // Top-left vertex
         glVertex3f(-1.0f, -1.0f, -5.0f); // Bottom-left vertex
         glVertex3f(1.0f, -1.0f, -5.0f);  // Bottom-right vertex
 
         // Back face of cube (Green)
-        glColor3f(0.0f, 1.0f, 0.0f);      // Set color to green
-        glVertex3f(1.0f, 1.0f, -15.0f);   // Top-right vertex
-        glVertex3f(-1.0f, 1.0f, -15.0f);  // Top-left vertex
+        glColor3f(0.0f, 1.0f, 0.0f); // Set color to green
+        glVertex3f(1.0f, 1.0f, -15.0f);  // Top-right vertex
+        glVertex3f(-1.0f, 1.0f, -15.0f); // Top-left vertex
         glVertex3f(-1.0f, -1.0f, -15.0f); // Bottom-left vertex
         glVertex3f(1.0f, -1.0f, -15.0f);  // Bottom-right vertex
 
-        // TODO: Add remaining faces to complete the cube
-        glColor3f(0.0f, 1.0f, 0.0f);      // Set color to green
-        glVertex3f(1.0f, 1.0f, -15.0f);   // Top-right vertex
-        glVertex3f(-1.0f, 1.0f, -15.0f);  // Top-left vertex
-        glVertex3f(1.0f, 1.0f, -5.0f);   // Top-right vertex
-        glVertex3f(-1.0f, 1.0f, -5.0f);  // Top-left vertex
+        // Left face of cube (Red)
+        glColor3f(1.0f, 0.0f, 0.0f); // Set color to red
+        glVertex3f(-1.0f, 1.0f, -5.0f);  // Top-right vertex
+        glVertex3f(-1.0f, 1.0f, -15.0f); // Top-left vertex
+        glVertex3f(-1.0f, -1.0f, -15.0f); // Bottom-left vertex
+        glVertex3f(-1.0f, -1.0f, -5.0f);  // Bottom-right vertex
+
+        // Right face of cube (Yellow)
+        glColor3f(1.0f, 1.0f, 0.0f); // Set color to yellow
+        glVertex3f(1.0f, 1.0f, -5.0f);  // Top-right vertex
+        glVertex3f(1.0f, 1.0f, -15.0f); // Top-left vertex
+        glVertex3f(1.0f, -1.0f, -15.0f); // Bottom-left vertex
+        glVertex3f(1.0f, -1.0f, -5.0f);  // Bottom-right vertex
+
+        // Top face of cube (Cyan)
+        glColor3f(0.0f, 1.0f, 1.0f); // Set color to cyan
+        glVertex3f(1.0f, 1.0f, -5.0f);  // Top-right vertex
+        glVertex3f(-1.0f, 1.0f, -5.0f); // Top-left vertex
+        glVertex3f(-1.0f, 1.0f, -15.0f); // Bottom-left vertex
+        glVertex3f(1.0f, 1.0f, -15.0f);  // Bottom-right vertex
+
+        // Bottom face of cube (Magenta)
+        glColor3f(1.0f, 0.0f, 1.0f); // Set color to magenta
+        glVertex3f(1.0f, -1.0f, -5.0f);  // Top-right vertex
+        glVertex3f(-1.0f, -1.0f, -5.0f); // Top-left vertex
+        glVertex3f(-1.0f, -1.0f, -15.0f); // Bottom-left vertex
+        glVertex3f(1.0f, -1.0f, -15.0f);  // Bottom-right vertex
     }
     glEnd();     // End geometry definition
     glEndList(); // End display list compilation
@@ -69,7 +90,7 @@ void initialize(Game *game)
 /**
  * Handles Game Input
  */
-void handleInput(GLFWwindow *window, Game *game)
+void handleInput(GLFWwindow* window, Game* game)
 {
     // Get current time and calculate time elapsed
     double currentTime = glfwGetTime();
@@ -79,18 +100,62 @@ void handleInput(GLFWwindow *window, Game *game)
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
     {
         // Update rotation continuously using deltaTime
-        game->rotationAngle += ROTATION_SPEED * deltaTime; // 45 degrees per second
+        game->rotationAngleY += ROTATION_SPEED * deltaTime; // 45 degrees per second
     }
     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
     {
         // Update rotation continuously using deltaTime
-        game->rotationAngle -= ROTATION_SPEED * deltaTime; // 45 degrees per second
+        game->rotationAngleY -= ROTATION_SPEED * deltaTime; // 45 degrees per second
     }
 
-    // Keep rotation angle between 0 and 360 degrees
-    if (game->rotationAngle > 360.0f)
+    // Z-axis rotation (Up/Down arrows)
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
     {
-        game->rotationAngle -= 360.0f;
+        game->rotationAngleZ += ROTATION_SPEED * deltaTime;
+    }
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    {
+        game->rotationAngleZ -= ROTATION_SPEED * deltaTime;
+    }
+    // X-axis rotation (Up/Down arrows)
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    {
+        game->rotationAngleX += ROTATION_SPEED * deltaTime;
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    {
+        game->rotationAngleX -= ROTATION_SPEED * deltaTime;
+    }
+    //distance between camera and cube  (A/D arrows)
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    {
+        game->Distancebwcubeandcamera += Distance * deltaTime;
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    {
+        game->Distancebwcubeandcamera -= Distance * deltaTime;
+    }
+
+    // Keep rotation angles between 0 and 360 degrees
+    if (game->rotationAngleY > 360.0f)
+    {
+        game->rotationAngleY -= 360.0f;
+    }
+    if (game->rotationAngleZ > 360.0f)
+    {
+        game->rotationAngleZ -= 360.0f;
+    }
+    if (game->rotationAngleX > 360.0f)
+    {
+        game->rotationAngleX -= 360.0f;
+    }
+    if (game->Distancebwcubeandcamera > FAR_PLANE)
+    {
+        game->rotationAngleX == FAR_PLANE;
+    }
+    if (game->Distancebwcubeandcamera < NEAR_PLANE)
+    {
+        game->rotationAngleX == NEAR_PLANE;
     }
 }
 
@@ -98,7 +163,7 @@ void handleInput(GLFWwindow *window, Game *game)
  * Updates game logic
  * Handles rotation timing and angle calculations
  */
-void update(Game *game)
+void update(Game* game)
 {
     // Get current time and calculate time elapsed
     double currentTime = glfwGetTime();
@@ -109,7 +174,7 @@ void update(Game *game)
     static double lastLogTime = 0.0;
     if (currentTime - lastLogTime >= 1.0)
     {
-        printf("Update : rotationAngle = %.2f\n", game->rotationAngle);
+        printf("Update : rotationAngleY = %.2f, rotationAngleZ = %.2f,, rotationAngleX = %.2f\n", game->rotationAngleY, game->rotationAngleZ, game->rotationAngleX);
         lastLogTime = currentTime;
     }
 }
@@ -118,7 +183,7 @@ void update(Game *game)
  * Renders the scene
  * Clears buffers, applies transformations, and draws the cube
  */
-void draw(Game *game)
+void draw(Game* game)
 {
     // Get current time and calculate time elapsed
     double currentTime = glfwGetTime();
@@ -129,16 +194,18 @@ void draw(Game *game)
     // Update last time
     game->lastTime = currentTime;
 
-    static double lastLogTime = 0.0;
-    if (currentTime - lastLogTime >= 1.0)
-    {
-        printf("Drawing Cube\n");
-        lastLogTime = currentTime;
-    }
+    glLoadIdentity(); // Reset modelview matrix
 
-    glLoadIdentity();                        // Reset modelview matrix
-    glRotatef(game->rotationAngle, 0, 1, 1); // Apply rotation around Y and Z axis
-    glCallList(game->index);                 // Draw cube using display list
+    // Apply translation to move the cube away from the camera
+    glTranslatef(0.0f, 0.0f, Distance);
+
+    // Apply rotation around Y and Z axes
+    glRotatef(game->rotationAngleY, 0.0f, 1.0f, 0.0f); // Rotate around Y-axis
+    glRotatef(game->rotationAngleZ, 0.0f, 0.0f, 1.0f); // Rotate around Z-axis
+    glRotatef(game->rotationAngleX, 1.0f, 0.0f, 0.0f); // Rotate around X-axis
+
+    // Draw the cube using the display list
+    glCallList(game->index);
 
     // Swap front and back buffers to display the rendered frame
     glfwSwapBuffers(game->window);
@@ -148,7 +215,7 @@ void draw(Game *game)
  * Main game loop
  * Initializes GLFW, creates window, and runs the game loop
  */
-void run(Game *game)
+void run(Game* game)
 {
     // Initialize GLFW library
     if (!glfwInit())
@@ -191,7 +258,7 @@ void run(Game *game)
  * Cleanup function
  * Releases allocated resources
  */
-void destroy(Game *game)
+void destroy(Game* game)
 {
     printf("Cleaning up\n");
     glDeleteLists(game->index, 1); // Delete the display list

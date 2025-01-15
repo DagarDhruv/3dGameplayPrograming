@@ -20,7 +20,10 @@ typedef struct Game
     bool isRunning;      // Game running state flag
     GLuint index;        // Display list index for cube geometry
     double lastTime;     // Time tracking for animation
-    float rotationAngle; // Current rotation angle of the cube
+    float rotationAngleY; // Current rotation angle of the cube on y axis
+    float rotationAngleZ; // Current rotation angle of the cube on z axis
+    float rotationAngleX; // Current rotation angle of the cube on x axis
+    float Distancebwcubeandcamera;//distance between cube and camera 
 } Game;
 
 // Function prototypes for game lifecycle management
