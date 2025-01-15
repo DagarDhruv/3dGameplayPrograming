@@ -34,8 +34,7 @@
               "RelativeToolTip": "include\\game.h",
               "ViewState": "AQIAAAMAAAAAAAAAAAAAABkAAAAhAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-01-15T10:17:54.85Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-01-15T10:17:54.85Z"
             },
             {
               "$type": "Document",
@@ -45,7 +44,7 @@
               "RelativeDocumentMoniker": "src\\game.c",
               "ToolTip": "C:\\Users\\c00303423\\Desktop\\Newfolder\\3dGameplayPrograming\\Practical1\\src\\game.c",
               "RelativeToolTip": "src\\game.c",
-              "ViewState": "AQIAALEAAAAAAAAAAAAAAM4AAAArAAAA",
+              "ViewState": "AQIAAKsAAAAAAAAAAAAAANEAAAA8AAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
               "WhenOpened": "2025-01-15T10:17:52.892Z",
               "EditorCaption": ""
@@ -60,8 +59,7 @@
               "RelativeToolTip": "src\\main.c",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
-              "WhenOpened": "2025-01-15T10:17:51.664Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-01-15T10:17:51.664Z"
             }
           ]
         }

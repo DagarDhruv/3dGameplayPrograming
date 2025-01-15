@@ -9,8 +9,9 @@ const int SCREEN_HEIGHT = 600;      // Screen Height
 const float ROTATION_SPEED = 45.0f; // Degrees per second
 const float FOV = 45.0f;            // Field of view in degrees
 const float NEAR_PLANE = 1.0f;      // Near clipping plane for the camera
-const float FAR_PLANE = 500.0f;     // Far clipping plane for the camera
-const float Distance = 2.0f;       //speed at which the cube moves from camera 
+const float FAR_PLANE = 200.0f;     // Far clipping plane for the camera
+const float Distance = 1.0f;       //speed at which the cube moves from camera 
+float Scale = 1.0f;
 /**
  * Initializes the game state and OpenGL settings
  * Sets up projection matrix, creates display lists, and initializes timing
@@ -117,7 +118,7 @@ void handleInput(GLFWwindow* window, Game* game)
     {
         game->rotationAngleZ -= ROTATION_SPEED * deltaTime;
     }
-    // X-axis rotation (Up/Down arrows)
+    // X-axis rotation (W/S keys)
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
         game->rotationAngleX += ROTATION_SPEED * deltaTime;
@@ -126,7 +127,7 @@ void handleInput(GLFWwindow* window, Game* game)
     {
         game->rotationAngleX -= ROTATION_SPEED * deltaTime;
     }
-    //distance between camera and cube  (A/D arrows)
+    //distance between camera and cube  (A/D keys)
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
     {
         game->Distancebwcubeandcamera += Distance * deltaTime;
@@ -134,6 +135,15 @@ void handleInput(GLFWwindow* window, Game* game)
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
     {
         game->Distancebwcubeandcamera -= Distance * deltaTime;
+    }
+    //set the scale for the cube  (+/- keys)
+    if (glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS)
+    {
+        Scale += Distance * deltaTime;
+    }
+    if (glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS)
+    {
+        Scale -= Distance * deltaTime;
     }
 
     // Keep rotation angles between 0 and 360 degrees
@@ -151,11 +161,11 @@ void handleInput(GLFWwindow* window, Game* game)
     }
     if (game->Distancebwcubeandcamera > FAR_PLANE)
     {
-        game->rotationAngleX == FAR_PLANE;
+        game->Distancebwcubeandcamera = FAR_PLANE;
     }
-    if (game->Distancebwcubeandcamera < NEAR_PLANE)
+    if (game->Distancebwcubeandcamera > NEAR_PLANE)
     {
-        game->rotationAngleX == NEAR_PLANE;
+        game->Distancebwcubeandcamera = NEAR_PLANE;
     }
 }
 
@@ -174,7 +184,7 @@ void update(Game* game)
     static double lastLogTime = 0.0;
     if (currentTime - lastLogTime >= 1.0)
     {
-        printf("Update : rotationAngleY = %.2f, rotationAngleZ = %.2f,, rotationAngleX = %.2f\n", game->rotationAngleY, game->rotationAngleZ, game->rotationAngleX);
+        printf("Update : rotationAngleY = %.2f, rotationAngleZ = %.2f, rotationAngleX = %.2f, distance between camera and cube  = %.2f,  scale  = %.2f\n", game->rotationAngleY, game->rotationAngleZ, game->rotationAngleX,game->Distancebwcubeandcamera ,Scale);
         lastLogTime = currentTime;
     }
 }
@@ -197,8 +207,9 @@ void draw(Game* game)
     glLoadIdentity(); // Reset modelview matrix
 
     // Apply translation to move the cube away from the camera
-    glTranslatef(0.0f, 0.0f, Distance);
+    glTranslatef(0.0f, 0.0f, game->Distancebwcubeandcamera);
 
+    glScalef(Scale, Scale, Scale);
     // Apply rotation around Y and Z axes
     glRotatef(game->rotationAngleY, 0.0f, 1.0f, 0.0f); // Rotate around Y-axis
     glRotatef(game->rotationAngleZ, 0.0f, 0.0f, 1.0f); // Rotate around Z-axis
