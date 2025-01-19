@@ -30,17 +30,17 @@ else
     os := $(shell uname -s)
     
     # Include paths
-    INCLUDES := -I. -I./include
-    
+    INCLUDES := -I. -I./include -I/opt/homebrew/Cellar/glfw/3.4/include
+
     # Library paths - add common installation directories
-    LIBS := -L. -L/usr/lib -L/usr/local/lib
-    
+    LIBS := -L. -L/usr/lib -L/usr/local/lib -L/opt/homebrew/Cellar/glfw/3.4/lib
+
     # Compiler flags
     CXXFLAGS := -std=c99 -Wall -Wextra -g ${INCLUDES}
-    
+
     # Required libraries for OpenGL/GLFW on Unix
-    LIBRARIES := -lglfw -lGL -lGLU -lm
-    
+    LIBRARIES := -lglfw -framework OpenGL -lm
+
     TARGET := ${BUILD_DIR}/sampleapp.bin
 endif
 
@@ -63,15 +63,15 @@ build:
 	@echo ${SRC}
 	@echo "*** TARGET ***"
 	@echo ${TARGET}
-	
+
 	# Create build directory
 	@rm -rf ${BUILD_DIR} || true
 	@mkdir -p ${BUILD_DIR}
-	
+
 	# Compile and link
 	${CXX} ${CXXFLAGS} -o ${TARGET} ${SRC} ${LIBS} ${LIBRARIES}
 	@echo ${MSG_END}
-	
+
 	# Run the program
 	./${TARGET}
 
