@@ -110,32 +110,32 @@ Matrix3f Scale(int dx,int dy)
 Matrix3f TranslateX(float dx) {
     Matrix3f result;
     initMatrix3fWithValues(&result,
-                           1, 0, dx,
+                           1, dx, dx,
                            0, 1, 0,
                            0, 0, 1
     );
     return result;
 }
 
-//Matrix3f TranslateY(float dy) {
-//    Matrix3f result;
-//    initMatrix3fWithValues(&result,
-//                           1, 0, 0,
-//                           0, 1, dy,
-//                           0, 0, 1
-//    );
-//    return result;
-//}
-//
-//Matrix3f TranslateZ(float dz) {
-//    Matrix3f result;
-//    initMatrix3fWithValues(&result,
-//                           1, 0, 0,
-//                           0, 1, 0,
-//                           0, 0, dz
-//    );
-//    return result;
-//}
+Matrix3f TranslateY(float dy) {
+    Matrix3f result;
+    initMatrix3fWithValues(&result,
+                           1, 0, 0,
+                           dy, 1, dy,
+                           0, 0, 1
+    );
+    return result;
+}
+
+Matrix3f TranslateZ(float dz) {
+    Matrix3f result;
+    initMatrix3fWithValues(&result,
+                           1, 0, 0,
+                           0, 1, 0,
+                           dz, dz, 1
+    );
+    return result;
+}
 
 //scale Translate
 Matrix3f Rotation(int angle)

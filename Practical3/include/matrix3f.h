@@ -53,8 +53,8 @@ Matrix3f Scale(int dx, int dy);
 Matrix3f Roataion(int angle);
 //translation of the matrix
 Matrix3f TranslateX(float dx);
-//Matrix3f TranslateY(float dy);
-//Matrix3f TranslateZ(float dz);
+Matrix3f TranslateY(float dy);
+Matrix3f TranslateZ(float dz);
 
 // Print the matrix
 void printMatrix3f(const Matrix3f *m);

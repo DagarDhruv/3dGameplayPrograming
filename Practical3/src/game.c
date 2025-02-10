@@ -309,7 +309,15 @@ void handleInput(GLFWwindow *window, Game *game)
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
     {
         // Inside your input handling or update logic
-        Matrix3f ScaleMatrix = TranslateX(0.01); // Rotate by -5 degrees
+        // Inside your input handling or update logic
+        Matrix3f ScaleMatrix; // Rotate by -5 degrees
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        {
+            ScaleMatrix = TranslateX(-0.01); // Rotate by -5 degrees
+        } else
+        {
+            ScaleMatrix = TranslateX(0.01); // Rotate by -5 degrees
+        }
 
         game->triangle[0] = multiplyMatrix3fByVector3f(&ScaleMatrix, &game->triangle[0]);
         game->triangle[1] = multiplyMatrix3fByVector3f(&ScaleMatrix, &game->triangle[1]);
@@ -321,36 +329,50 @@ void handleInput(GLFWwindow *window, Game *game)
         printVector3f(&game->triangle[1]);
         printVector3f(&game->triangle[2]);
     }
-//    if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
-//    {
-//        // Inside your input handling or update logic
-//        Matrix3f ScaleMatrix = TranslateY(-0.01); // Rotate by -5 degrees
-//
-//        game->triangle[0] = multiplyMatrix3fByVector3f(&ScaleMatrix, &game->triangle[0]);
-//        game->triangle[1] = multiplyMatrix3fByVector3f(&ScaleMatrix, &game->triangle[1]);
-//        game->triangle[2] = multiplyMatrix3fByVector3f(&ScaleMatrix, &game->triangle[2]);
-//
-//        // Debug output to check if the triangle is being rotated
-//        DEBUG_MSG("After rotation (clockwise):\n");
-//        printVector3f(&game->triangle[0]);
-//        printVector3f(&game->triangle[1]);
-//        printVector3f(&game->triangle[2]);
-//    }
-//    if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
-//    {
-//        // Inside your input handling or update logic
-//        Matrix3f ScaleMatrix = TranslateZ(-0.01); // Rotate by -5 degrees
-//
-//        game->triangle[0] = multiplyMatrix3fByVector3f(&ScaleMatrix, &game->triangle[0]);
-//        game->triangle[1] = multiplyMatrix3fByVector3f(&ScaleMatrix, &game->triangle[1]);
-//        game->triangle[2] = multiplyMatrix3fByVector3f(&ScaleMatrix, &game->triangle[2]);
-//
-//        // Debug output to check if the triangle is being rotated
-//        DEBUG_MSG("After rotation (clockwise):\n");
-//        printVector3f(&game->triangle[0]);
-//        printVector3f(&game->triangle[1]);
-//        printVector3f(&game->triangle[2]);
-//    }
+    if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
+    {
+        // Inside your input handling or update logic
+        // Inside your input handling or update logic
+        Matrix3f ScaleMatrix; // Rotate by -5 degrees
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        {
+            ScaleMatrix = TranslateY(-0.01); // Rotate by -5 degrees
+        } else
+        {
+            ScaleMatrix = TranslateY(0.01); // Rotate by -5 degrees
+        }
+
+        game->triangle[0] = multiplyMatrix3fByVector3f(&ScaleMatrix, &game->triangle[0]);
+        game->triangle[1] = multiplyMatrix3fByVector3f(&ScaleMatrix, &game->triangle[1]);
+        game->triangle[2] = multiplyMatrix3fByVector3f(&ScaleMatrix, &game->triangle[2]);
+
+        // Debug output to check if the triangle is being rotated
+        DEBUG_MSG("After rotation (clockwise):\n");
+        printVector3f(&game->triangle[0]);
+        printVector3f(&game->triangle[1]);
+        printVector3f(&game->triangle[2]);
+    }
+    if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)
+    {
+        // Inside your input handling or update logic
+        Matrix3f ScaleMatrix; // Rotate by -5 degrees
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        {
+            ScaleMatrix = TranslateZ(-0.01); // Rotate by -5 degrees
+        } else
+        {
+            ScaleMatrix = TranslateZ(0.01); // Rotate by -5 degrees
+        }
+        game->triangle[0] = multiplyMatrix3fByVector3f(&ScaleMatrix, &game->triangle[0]);
+        game->triangle[1] = multiplyMatrix3fByVector3f(&ScaleMatrix, &game->triangle[1]);
+        game->triangle[2] = multiplyMatrix3fByVector3f(&ScaleMatrix, &game->triangle[2]);
+
+        // Debug output to check if the triangle is being rotated
+        DEBUG_MSG("After rotation (clockwise):\n");
+        printVector3f(&game->triangle[0]);
+        printVector3f(&game->triangle[1]);
+        printVector3f(&game->triangle[2]);
+    }
 
 
 
