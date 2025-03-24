@@ -1,218 +1,199 @@
+#include "./include/Game.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <GL/glew.h>
-#include <SFML/Window.hpp>
-#include <SFML/OpenGL.hpp>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
-using namespace std;
-using namespace sf;
-
-struct Vertex {
-    float coordinate[3];
-    float color[3];
-};
-
-class Game {
-public:
-    Game();
-    ~Game();
-    void run();
-private:
-    RenderWindow window;
-    bool isRunning;
-    Clock clock;
-    Time elapsed;
-
-    GLuint index, vsid, fsid, progID, vbo = 1, positionID, colorID;
-    Vertex vertex[8];  // Cube has 8 vertices
-    GLubyte triangles[36];  // 36 indices to form 12 triangles (6 faces)
-
-    void initialize();
-    void update();
-    void render();
-    void unload();
-
-    std::string readShaderFile(const char* filename);
-    GLuint compileShader(GLenum type, const std::string& source);
-    GLuint createShaderProgram(const std::string& vertexSource, const std::string& fragmentSource);
-};
-
-Game::Game() : window(VideoMode(800, 600), "OpenGL Cube with Shaders") {}
+#include <vector>
+#include <cmath>
+Game::Game() : window(VideoMode(800, 600), "OpenGL Cube Vertex and Fragment Shaders")
+{
+}
 
 Game::~Game() {}
 
-void Game::run() {
-    initialize();
-    Event event;
-
-    while (isRunning) {
-        while (window.pollEvent(event)) {
-            if (event.type == Event::Closed)
-                isRunning = false;
-        }
-
-        update();
-        render();
-    }
-
-    unload();
-}
-
-std::string Game::readShaderFile(const char* filename) {
-    std::ifstream file(filename);
+std::string readShaderFile(const std::string& filePath) {
+    std::ifstream file(filePath);
     if (!file) {
-        std::cerr << "Failed to open file: " << filename << std::endl;
-        return "";
+        std::cerr << "Error: Could not open shader file " << filePath << std::endl;
+        exit(EXIT_FAILURE);
     }
     std::stringstream buffer;
     buffer << file.rdbuf();
     return buffer.str();
 }
 
-GLuint Game::compileShader(GLenum type, const std::string& source) {
-    GLuint shader = glCreateShader(type);
-    const char* src = source.c_str();
-    glShaderSource(shader, 1, &src, NULL);
-    glCompileShader(shader);
+void Game::run()
+{
+    initialize();
 
-    GLint compiled;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
-    if (compiled == GL_FALSE) {
-        GLint logLength;
-        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
-        char* log = new char[logLength];
-        glGetShaderInfoLog(shader, logLength, NULL, log);
-        std::cerr << "Shader compilation failed: " << log << std::endl;
-        delete[] log;
+    Event event;
+    while (isRunning)
+    {
+        while (window.pollEvent(event))
+        {
+            if (event.type == Event::Closed)
+            {
+                isRunning = false;
+            }
+        }
+        update();
+        render();
     }
-
-    return shader;
 }
 
-GLuint Game::createShaderProgram(const std::string& vertexSource, const std::string& fragmentSource) {
-    GLuint vertexShader = compileShader(GL_VERTEX_SHADER, vertexSource);
-    GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentSource);
+typedef struct
+{
+    float coordinate[3];
+    float color[3];
+} Vertex;
 
-    GLuint program = glCreateProgram();
-    glAttachShader(program, vertexShader);
-    glAttachShader(program, fragmentShader);
-    glLinkProgram(program);
+Vertex vertex[8];
+GLubyte triangles[36];
 
-    GLint linked;
-    glGetProgramiv(program, GL_LINK_STATUS, &linked);
-    if (linked == GL_FALSE) {
-        GLint logLength;
-        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logLength);
-        char* log = new char[logLength];
-        glGetProgramInfoLog(program, logLength, NULL, log);
-        std::cerr << "Program linking failed: " << log << std::endl;
-        delete[] log;
-    }
+/* OpenGL Variables */
+GLuint index, vsid, fsid, progID, vbo, vao, ebo, positionID, colorID, modelID;
 
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-
-    return program;
-}
-
-void Game::initialize() {
+void Game::initialize()
+{
     isRunning = true;
+
     glewInit();
+    std::string vertexShaderSource = readShaderFile("./src/vertexShader.glsl");
+    std::string fragmentShaderSource = readShaderFile("./src/fragmentShader.glsl");
 
-    // Read shader files
-    std::string vertexShaderSource = readShaderFile("vs.glsl");
-    std::string fragmentShaderSource = readShaderFile("fs.glsl");
+    const char* vs_src = vertexShaderSource.c_str();
+    const char* fs_src = fragmentShaderSource.c_str();
 
-    // Create shader program from loaded source
-    progID = createShaderProgram(vertexShaderSource, fragmentShaderSource);s
+    // Compile Vertex Shader
+    vsid = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vsid, 1, &vs_src, NULL);
+    glCompileShader(vsid);
+    checkShaderCompilation(vsid, "Vertex Shader");
+
+    // Compile Fragment Shader
+    fsid = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fsid, 1, &fs_src, NULL);
+    glCompileShader(fsid);
+    checkShaderCompilation(fsid, "Fragment Shader");
+
+    // Create and Link Shader Program
+    progID = glCreateProgram();
+    glAttachShader(progID, vsid);
+    glAttachShader(progID, fsid);
+    glLinkProgram(progID);
+    checkProgramLinking(progID);
+
     glUseProgram(progID);
 
-    // Get attribute locations
     positionID = glGetAttribLocation(progID, "sv_position");
     colorID = glGetAttribLocation(progID, "sv_color");
+    modelID = glGetUniformLocation(progID, "model");
 
-    // Cube vertices and colors
-    vertex[0] = { {-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f} }; // Red
-    vertex[1] = { { 0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f} }; // Green
-    vertex[2] = { { 0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, 1.0f} }; // Blue
-    vertex[3] = { {-0.5f,  0.5f, -0.5f}, {1.0f, 1.0f, 0.0f} }; // Yellow
-    vertex[4] = { {-0.5f, -0.5f,  0.5f}, {0.0f, 1.0f, 1.0f} }; // Cyan
-    vertex[5] = { { 0.5f, -0.5f,  0.5f}, {1.0f, 0.0f, 1.0f} }; // Magenta
-    vertex[6] = { { 0.5f,  0.5f,  0.5f}, {1.0f, 1.0f, 1.0f} }; // White
-    vertex[7] = { {-0.5f,  0.5f,  0.5f}, {0.5f, 0.5f, 0.5f} }; // Gray
+    // Enable Depth Test
+    glEnable(GL_DEPTH_TEST);
 
-    // Cube indices (6 faces)
-    GLuint cubeIndices[36] = {
-        0, 1, 2, 0, 2, 3,   // Front face
-        4, 5, 6, 4, 6, 7,   // Back face
-        0, 3, 7, 0, 7, 4,   // Left face
-        1, 2, 6, 1, 6, 5,   // Right face
-        3, 2, 6, 3, 6, 7,   // Top face
-        0, 1, 5, 0, 5, 4    // Bottom face
+    // Setup Vertices
+    Vertex vertices[] = {
+            {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}}, // Red
+            {{0.5f, -0.5f, -0.5f},  {0.0f, 1.0f, 0.0f}}, // Green
+            {{0.5f,  0.5f, -0.5f},  {0.0f, 0.0f, 1.0f}}, // Blue
+            {{-0.5f,  0.5f, -0.5f}, {1.0f, 1.0f, 0.0f}}, // Yellow
+            {{-0.5f, -0.5f,  0.5f}, {1.0f, 0.0f, 1.0f}}, // Magenta
+            {{0.5f, -0.5f,  0.5f},  {0.0f, 1.0f, 1.0f}}, // Cyan
+            {{0.5f,  0.5f,  0.5f},  {1.0f, 1.0f, 1.0f}}, // White
+            {{-0.5f,  0.5f,  0.5f}, {0.5f, 0.5f, 0.5f}}  // Gray
     };
 
-    // Create VBO and upload vertex data
+    GLubyte indices[] = {
+            0, 1, 2,  2, 3, 0,
+            1, 5, 6,  6, 2, 1,
+            5, 4, 7,  7, 6, 5,
+            4, 0, 3,  3, 7, 4,
+            3, 2, 6,  6, 7, 3,
+            4, 5, 1,  1, 0, 4
+    };
+
+    // Generate and Bind VAO
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
+    // Generate and Bind VBO
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 8, vertex, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    // Create index buffer for cube faces
-    glGenBuffers(1, &index);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubeIndices), cubeIndices, GL_STATIC_DRAW);
+    // Generate and Bind EBO
+    glGenBuffers(1, &ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    // Enable vertex attributes
+    // Define Vertex Attributes
+    glVertexAttribPointer(positionID, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
     glEnableVertexAttribArray(positionID);
+
+    glVertexAttribPointer(colorID, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(sizeof(float) * 3));
     glEnableVertexAttribArray(colorID);
 }
 
-void Game::update() {
+void Game::update()
+{
     elapsed = clock.getElapsedTime();
+    float angle = elapsed.asSeconds();
 
-    float angle = elapsed.asSeconds() * 45.0f;  // Rotate 45 degrees per second
-    glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
+    float cosA = cos(angle);
+    float sinA = sin(angle);
 
-    // Apply the rotation matrix to each vertex
-    for (int i = 0; i < 8; ++i) {
-        glm::vec4 vertexPos = glm::vec4(vertex[i].coordinate[0], vertex[i].coordinate[1], vertex[i].coordinate[2], 1.0f);
-        vertexPos = rotationMatrix * vertexPos;
+    float rotationMatrix[16] = {
+            cosA,  0, sinA,  0,
+            0,     1, 0,     0,
+            -sinA, 0, cosA,  0,
+            0,     0, 0,     1
+    };
 
-        vertex[i].coordinate[0] = vertexPos.x;
-        vertex[i].coordinate[1] = vertexPos.y;
-        vertex[i].coordinate[2] = vertexPos.z;
-    }
-
-    // Update vertex data in GPU buffer
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 8, vertex, GL_STATIC_DRAW);
+    glUseProgram(progID);
+    glUniformMatrix4fv(modelID, 1, GL_FALSE, rotationMatrix);
 }
 
-void Game::render() {
+void Game::render()
+{
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
-
-    glVertexAttribPointer(positionID, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-    glVertexAttribPointer(colorID, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (float*)NULL + 3);
-
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+    glUseProgram(progID);
+    glBindVertexArray(vao);
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, 0);
     window.display();
 }
 
-void Game::unload() {
-    cout << "Cleaning up" << endl;
+void Game::unload()
+{
     glDeleteProgram(progID);
     glDeleteBuffers(1, &vbo);
+    glDeleteBuffers(1, &ebo);
+    glDeleteVertexArrays(1, &vao);
 }
 
-int main() {
-    Game game;
-    game.run();
-    return 0;
+/* Shader Compilation Checking */
+void Game::checkShaderCompilation(GLuint shader, const std::string& shaderName) {
+    GLint isCompiled;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);
+    if (!isCompiled) {
+        GLint maxLength;
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
+        std::vector<char> errorLog(maxLength);
+        glGetShaderInfoLog(shader, maxLength, &maxLength, errorLog.data());
+        std::cerr << "ERROR: " << shaderName << " Compilation Failed\n" << errorLog.data() << std::endl;
+        exit(EXIT_FAILURE);
+    }
 }
+
+void Game::checkProgramLinking(GLuint program) {
+    GLint isLinked;
+    glGetProgramiv(program, GL_LINK_STATUS, &isLinked);
+    if (!isLinked) {
+        GLint maxLength;
+        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
+        std::vector<char> errorLog(maxLength);
+        glGetProgramInfoLog(program, maxLength, &maxLength, errorLog.data());
+        std::cerr << "ERROR: Shader Program Linking Failed\n" << errorLog.data() << std::endl;
+        exit(EXIT_FAILURE);
+    }
+}
+
