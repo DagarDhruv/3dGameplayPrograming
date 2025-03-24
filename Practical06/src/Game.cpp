@@ -170,7 +170,7 @@ void Game::unload()
     glDeleteVertexArrays(1, &vao);
 }
 
-/* Shader Compilation Checking */
+
 void Game::checkShaderCompilation(GLuint shader, const std::string& shaderName) {
     GLint isCompiled;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);
