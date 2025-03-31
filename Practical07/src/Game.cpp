@@ -40,8 +40,8 @@ typedef struct
 	float texel[2];
 } Vertex;
 
-Vertex vertex[6];
-GLubyte triangles[6];
+Vertex vertex[8];
+GLubyte triangles[36];
 
 /* Variable to hold the VBO identifier and shader data */
 
@@ -153,6 +153,28 @@ void Game::initialize()
 
     /* Texel UV, ST, xy texture mappings counter-clockwise winding */
     vertex[0].texel[0] = 0.0f;
+    vertex[0].texel[1] =0.0f;
+
+    vertex[1].texel[0] = 1.0f;
+    vertex[1].texel[1] =0.0f;
+
+    vertex[2].texel[0] = 1.0f;
+    vertex[2].texel[1] =1.0f;
+
+    vertex[3].texel[0] = 0.0f;
+    vertex[3].texel[1] =1.0f;
+
+    vertex[4].texel[0] = 0.0f;
+    vertex[4].texel[1] =0.0f;
+
+    vertex[5].texel[0] = 1.0f;
+    vertex[5].texel[1] =0.0f;
+
+    vertex[6].texel[0] = 1.0f;
+    vertex[6].texel[1] =1.0f;
+
+    vertex[7].texel[0] = 0.0f;
+    vertex[7].texel[1] =1.0f;
 
     GLubyte triangles [] = {
             0, 1, 2,  2, 3, 0,
@@ -303,21 +325,21 @@ void Game::initialize()
 
 void Game::update()
 {
-          elapsed = clock.getElapsedTime();
-          for (int i = 0; i < 8; i++)
-          {
-                    float x = vertex[i].coordinate[0];
-                    float y = vertex[i].coordinate[1];
-                    float z = vertex[i].coordinate[2];
+    elapsed = clock.getElapsedTime();
+    for (int i = 0; i < 8; i++)
+    {
+        float x = vertex[i].coordinate[0];
+        float y = vertex[i].coordinate[1];
+        float z = vertex[i].coordinate[2];
 
-                    // Rotate around the Y-axis
-                    vertex[i].coordinate[0] = x * cos(0.0001f) - z * sin(0.0001f);
-                    vertex[i].coordinate[2] = x * sin(0.0001f) + z * cos(0.0001f);
-              }
+        // Rotate around the Y-axis
+        vertex[i].coordinate[0] = x * cos(0.0001f) - z * sin(0.0001f);
+        vertex[i].coordinate[2] = x * sin(0.0001f) + z * cos(0.0001f);
+        }
 
-          for (int i = 0; i < 8; i++)
-          {
-                    // Store original coordinates
+    for (int i = 0; i < 8; i++)
+    {
+        // Store original coordinates
          float x = vertex[i].coordinate[0];
         float y = vertex[i].coordinate[1];
 
@@ -325,7 +347,7 @@ void Game::update()
         // Z-axis rotation affects X and Y coordinates
         vertex[i].coordinate[0] = x * cos(0.0001f) - y * sin(0.0001f);
         vertex[i].coordinate[1] = x * sin(0.0001f) + y * cos(0.0001f);
-        }
+    }
 
 
 void Game::render()
