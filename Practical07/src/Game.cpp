@@ -70,56 +70,98 @@ unsigned char *img_data;
 
 void Game::initialize()
 {
-	isRunning = true;
+    isRunning = true;
 
-	GLint isCompiled = 0;
-	GLint isLinked = 0;
+    GLint isCompiled = 0;
+    GLint isLinked = 0;
 
-	glewInit();
+    glewInit();
 
-	/* Vertices counter-clockwise winding */
+    /* Vertices counter-clockwise winding */
+    ////back face VVVVVVV
+    vertex[0].coordinate[0] = -0.5f; //front
+    vertex[0].coordinate[1] = -0.5f;//bottom
+    vertex[0].coordinate[2] = -0.5f;//left
 
-	vertex[0].coordinate[0] = -0.5f;
-	vertex[0].coordinate[1] = -0.5f;
-	vertex[0].coordinate[2] = 0.0f;
+    vertex[1].coordinate[0] = 0.5f;
+    vertex[1].coordinate[1] = -0.5f;  //bottom
+    vertex[1].coordinate[2] = -0.5f;//right
 
-	vertex[1].coordinate[0] = -0.5f;
-	vertex[1].coordinate[1] = 0.5f;
-	vertex[1].coordinate[2] = 0.0f;
+    vertex[2].coordinate[0] = 0.5f;
+    vertex[2].coordinate[1] = 0.5f;   //top
+    vertex[2].coordinate[2] = -0.5f;//right
 
-	vertex[2].coordinate[0] = 0.5f;
-	vertex[2].coordinate[1] = 0.5f;
-	vertex[2].coordinate[2] = 0.0f;
+    vertex[3].coordinate[0] = -0.5f;//left
+    vertex[3].coordinate[1] = 0.5f;  //top
+    vertex[3].coordinate[2] = -0.5f;
 
-	/* Colors counter-clockwise winding */
+    /////Front face VVVVVVV
 
-	vertex[0].color[0] = 0.1f;
-	vertex[0].color[1] = 1.0f;
-	vertex[0].color[2] = 0.0f;
+    vertex[4].coordinate[0] = -0.5f;//left
+    vertex[4].coordinate[1] = -0.5f;  //bottom
+    vertex[4].coordinate[2] = 0.5f;
 
-	vertex[1].color[0] = 0.2f;
-	vertex[1].color[1] = 1.0f;
-	vertex[1].color[2] = 0.0f;
+    vertex[5].coordinate[0] = 0.5f;
+    vertex[5].coordinate[1] = -0.5f;  //bottom
+    vertex[5].coordinate[2] = 0.5f;//right
 
-	vertex[2].color[0] = 0.3f;
-	vertex[2].color[1] = 1.0f;
-	vertex[2].color[2] = 0.0f;
+    vertex[6].coordinate[0] = 0.5f;
+    vertex[6].coordinate[1] = 0.5f;   //top
+    vertex[6].coordinate[2] = 0.5f;//right
 
-	/* Texel UV, ST, xy texture mappings counter-clockwise winding */
+    vertex[7].coordinate[0] = -0.5f;//left
+    vertex[7].coordinate[1] = 0.5f;   //top
+    vertex[7].coordinate[2] = 0.5f;
 
-	vertex[0].texel[0] = 0.0f;
-	vertex[0].texel[1] = 0.0f;
 
-	vertex[1].texel[0] = 1.0f;
-	vertex[1].texel[1] = 0.0f;
 
-	vertex[2].texel[0] = 1.0f;
-	vertex[2].texel[1] = 1.0f;
+    /* Colors counter-clockwise winding */
 
-	triangles[0] = 0;
-	triangles[1] = 1;
-	triangles[2] = 2;
+    vertex[0].color[0] = 0.1f;
+    vertex[0].color[1] = 1.0f;
+    vertex[0].color[2] = 0.0f;
 
+    vertex[1].color[0] = 0.2f;
+    vertex[1].color[1] = 1.0f;
+    vertex[1].color[2] = 0.0f;
+
+    vertex[2].color[0] = 0.3f;
+    vertex[2].color[1] = 1.0f;
+    vertex[2].color[2] = 0.0f;
+
+    vertex[3].color[0] = 0.1f;
+    vertex[3].color[1] = 1.0f;
+    vertex[3].color[2] = 0.0f;
+
+    vertex[4].color[0] = 0.2f;
+    vertex[4].color[1] = 1.0f;
+    vertex[4].color[2] = 0.0f;
+
+    vertex[5].color[0] = 0.3f;
+    vertex[5].color[1] = 1.0f;
+    vertex[5].color[2] = 0.0f;
+
+    vertex[6].color[0] = 0.1f;
+    vertex[6].color[1] = 1.0f;
+    vertex[6].color[2] = 0.0f;
+
+    vertex[7].color[0] = 0.2f;
+    vertex[7].color[1] = 1.0f;
+    vertex[7].color[2] = 0.0f;
+
+
+
+    /* Texel UV, ST, xy texture mappings counter-clockwise winding */
+    vertex[0].texel[0] = 0.0f;
+
+    GLubyte triangles [] = {
+            0, 1, 2,  2, 3, 0,
+            1, 5, 6,  6, 2, 1,
+            5, 4, 7,  7, 6, 5,
+            4, 0, 3,  3, 7, 4,
+            3, 2, 6,  6, 7, 3,
+            4, 5, 1,  1, 0, 4
+            };
 	/* Create a new VBO using VBO id */
 	glGenBuffers(1, &vbo);
 
@@ -127,12 +169,12 @@ void Game::initialize()
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
 	/* Upload vertex data to GPU */
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 3, vertex, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 8, vertex, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	glGenBuffers(1, &index);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * 3, triangles, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * 36, triangles, GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	/* Vertex Shader which would normally be loaded from an external file */
@@ -261,25 +303,30 @@ void Game::initialize()
 
 void Game::update()
 {
-	elapsed = clock.getElapsedTime();
+          elapsed = clock.getElapsedTime();
+          for (int i = 0; i < 8; i++)
+          {
+                    float x = vertex[i].coordinate[0];
+                    float y = vertex[i].coordinate[1];
+                    float z = vertex[i].coordinate[2];
 
-	// Change vertex data
-	vertex[0].coordinate[0] += -0.0001f;
-	vertex[0].coordinate[1] += -0.0001f;
-	vertex[0].coordinate[2] += -0.0001f;
+                    // Rotate around the Y-axis
+                    vertex[i].coordinate[0] = x * cos(0.0001f) - z * sin(0.0001f);
+                    vertex[i].coordinate[2] = x * sin(0.0001f) + z * cos(0.0001f);
+              }
 
-	vertex[1].coordinate[0] += -0.0001f;
-	vertex[1].coordinate[1] += -0.0001f;
-	vertex[1].coordinate[2] += -0.0001f;
+          for (int i = 0; i < 8; i++)
+          {
+                    // Store original coordinates
+         float x = vertex[i].coordinate[0];
+        float y = vertex[i].coordinate[1];
 
-	vertex[2].coordinate[0] += -0.0001f;
-	vertex[2].coordinate[1] += -0.0001f;
-	vertex[2].coordinate[2] += -0.0001f;
+        // Rotate around the Z-axis
+        // Z-axis rotation affects X and Y coordinates
+        vertex[i].coordinate[0] = x * cos(0.0001f) - y * sin(0.0001f);
+        vertex[i].coordinate[1] = x * sin(0.0001f) + y * cos(0.0001f);
+        }
 
-#if (DEBUG >= 2)
-	DEBUG_MSG("Update up...");
-#endif
-}
 
 void Game::render()
 {
@@ -297,7 +344,7 @@ void Game::render()
 
 	/*	As the data positions will be updated by the this program on the
 		CPU bind the updated data to the GPU for drawing	*/
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 3, vertex, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 8, vertex, GL_STATIC_DRAW);
 
 	/*	Draw Triangle from VBO	(set where to start from as VBO can contain
 		model components that 'are' and 'are not' to be drawn )	*/
